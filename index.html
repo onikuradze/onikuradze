@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<script src="https://d3js.org/d3.v4.min.js"></script>
+
+<head>
+    <!--
+        OLGA NIKURADZE
+        VISUALIZING INFO
+        FINAL PROJECT
+        -->
+    <link rel="stylesheet" href="mystyle.css">
+    <meta charset="UTF-8">
+    <title>HOMEPAGE - Interactive Visualization</title>
+
+
+</head>
+
+<body>
+    <!--Navigation at the top of the page-->
+    <ul>
+        <li><a href="index.html">Visualization</a></li>
+        <li><a href="documentation.html">Documentation</a></li>
+    </ul>
+
+    <br>
+
+    <!--Title of the homepage-->
+    <h1>
+        <text>Spotify Top 50 Songs - Does Song Length Matter?</text><br>
+        <text1>(Place mouse over individual dots to see more information about the Top 50 songs!)</text1>
+
+    </h1>
+
+    <!-- Div ID for the chart -->
+    <div id="my_dataviz"></div>
+
+    <!--Script for the interactive visulization -->
+    <script>
+
+        // Set the dimensions and margins of the graph
+        var margin = {top: 10, right: 30, bottom: 30, left: 60},
+            width = 700 - margin.left - margin.right,
+            height = 700 - margin.top - margin.bottom;
+        
+        // Append the svg object to the body of the page
+        var svg = d3.select("#my_dataviz")
+          .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+          .append("g")
+            .attr("transform",
+                  "translate(" + margin.left + "," + margin.top + ")");
+        
+        //Read the data
+        d3.csv("top50.csv", function(data) {
+        
+          // Add X-axis
+          var x = d3.scaleLinear()
+            .domain([0, 315])
+            .range([ 0, width ]);
+          svg.append("g")
+            .attr("transform", "translate(0," + height + ")")
+            .call(d3.axisBottom(x));
+          
+          // Add X-axis label
+          svg.append("text")
+            .attr("class", "axis-label")
+            .attr("y", 0 - margin.bottom)
+            .attr("x", 0 - (length / 2))
+            .attr("dy", "1em")
+            .text("Song Length in Seconds");
+        
+          // Add Y-axis
+          var y = d3.scaleLinear()
+            .domain([0, 100])
+            .range([ height, 0]);
+          svg.append("g")
+            .call(d3.axisLeft(y));
+          
+          // Add Y-axis label
+          svg.append("text")
+            .attr("transform", "rotate(-90)")
+            .attr("y", 0 - margin.left)
+            .attr("x", 0 - (height / 2))
+            .attr("dy", "1em")
+            .style("text-anchor", "middle")
+            .text("Song Popularity");
+        
+          // Add a tooltip div
+          var tooltip = d3.select("#my_dataviz")
+            .append("div")
+            .style("opacity", 0)
+            .attr("class", "tooltip")
+            .style("background-color", "white")
+            .style("border", "solid")
+            .style("border-width", "1px")
+            .style("border-radius", "5px")
+            .style("padding", "10px")
+        
+          // A function that changes this tooltip when the user hovers on a point
+          var mouseover = function(d) {
+            tooltip
+              .style("opacity", 1)
+          }
+        
+          var mousemove = function(d) {
+            tooltip
+            .html(`Track name: ${d.Track_Name}<br>Artist name: ${d.Artist_Name}<br>Genre: ${d.Genre}<br>Danceability: ${d.Danceability}<br>Length: ${d.Length}<br>Speechiness: ${d.Speechiness}<br>Popularity: ${d.Popularity}`)
+              .style("left", (d3.mouse(this)[0]+90) + "px") // It is important to put the +90: other wise the tooltip is exactly where the point is an it creates a weird effect
+              .style("top", (d3.mouse(this)[1]) + "px")
+          }
+        
+          // A function changes this tooltip when the leaves a point
+          var mouseleave = function(d) {
+            tooltip
+              .transition()
+              .duration(300)
+              .style("opacity", 0)
+          }
+
+          // Add dots
+          svg.append('g')
+            .selectAll("dot")
+            .data(data.filter(function(d,i){return i<50})) 
+            .enter()
+            .append("circle")
+              .attr("cx", function (d) { return x(d.Length); } )
+              .attr("cy", function (d) { return y(d.Popularity); } )
+              .attr("r", 7)
+              .style("fill", "#69b3a2")
+              .style("opacity", 0.3)
+              .style("stroke", "white")
+            .on("mouseover", mouseover )
+            .on("mousemove", mousemove )
+            .on("mouseleave", mouseleave )
+        
+        })
+        
+    </script>
+
+    <!--Footer-->
+    <footer>
+        <p>Made by Olga Nikuradze, IUPUI, May'23<br>
+            <!--Links to other pages on the site-->
+        <p>Project links<br>
+            <a href="index.html">Visualization</a> <br>
+            <a href="documentation.html">Documentation</a><br>
+    </footer>
+
+</body>
+
+</html>
